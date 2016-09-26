@@ -27,11 +27,13 @@ public class WeatherDeserializer implements JsonDeserializer<Weather> {
             JsonObject jsonMain = jsonObject.get("main").getAsJsonObject();
             double temperature = jsonMain.get("temp").getAsDouble();
             int humidity = jsonMain.get("humidity").getAsInt();
+            int ultimaact= jsonObject.get("id").getAsInt();//   get("id").getAsInt();
             weather = new Weather();
             weather.setDescription(description);
             weather.setHumidity(humidity);
             weather.setTemperature(temperature);
             weather.setIconCode(iconCode);
+            weather.setId((ultimaact));
         }
         return weather;
     }

@@ -7,6 +7,7 @@ package co.edu.udea.compumovil.gr3.lab3weather3;
 public class Weather {
 
     private double temperature;
+    private double id;
     private int humidity;
     private String description;
     private String iconCode;
@@ -56,4 +57,8 @@ public class Weather {
     public void setImageWeather(byte[] imageWeather) {
         this.imageWeather = imageWeather;
     }
+
+    public double getId() {return id;}
+
+    public void setId(double id) { this.id = id;}
 }

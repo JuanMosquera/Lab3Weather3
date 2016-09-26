@@ -19,7 +19,7 @@ import java.net.URL;
 public class HttpClient {
 
     private final String TAG = "HttpClient";
-    private static final String API_KEY = "1036902626c88e251c8ad4ab2cc839a5";
+    private static final String API_KEY = "d85777356583ffdb73584d0c2090e3bf";
     private static final String URL_BASE ="http://api.openweathermap.org";
     private static final String [] REQUESTS = {"/data/2.5/weather","/img/w/"};
 

@@ -30,10 +30,11 @@ public class MainActivity extends AppCompatActivity {
     private String message;
     private City currentCity;
     private AutoCompleteTextView tvSearch;
-    private TextView tvCity, tvTemperature, tvHumidity, tvDescription;
+    private TextView tvCity, tvTemperature, tvHumidity, tvDescription,ultimaAct;
     private ImageView ivWeather;
     private boolean cityAvailable;
     private List<String> cities;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         tvHumidity = (TextView) findViewById(R.id.tv_humidity);
         tvDescription = (TextView) findViewById(R.id.tv_description);
         ivWeather = (ImageView) findViewById(R.id.iv_weather_image);
+        ultimaAct = (TextView) findViewById(R.id.ultimaVisualizacion);
+
+
 
         //Asignamos un adapter con la lista de las ciudades capitales al textview para la funcion de autocompletar
         cities = Arrays.asList(getResources().getStringArray(R.array.capital_cities));
@@ -162,9 +166,9 @@ public class MainActivity extends AppCompatActivity {
                 Weather weather = city.getWeather();
                 tvCity.setText(city.getName());
                 tvTemperature.setText(getResources().getString(R.string.temperature)+""+String.valueOf(weather.getTemperature())+"°");
-                tvHumidity.setText(getResources().getString(R.string.humidity)+""+String.valueOf(weather.getHumidity()));
+                tvHumidity.setText(getResources().getString(R.string.humidity)+""+String.valueOf(weather.getHumidity()+"%"));
                 tvDescription.setText(getResources().getString(R.string.description)+""+weather.getDescription());
-
+                ultimaAct.setText(String.valueOf(weather.getId()));
                 byte[] imgWeather = weather.getImageWeather();
                 Bitmap bitmapWeather = BitmapFactory.decodeByteArray(imgWeather, 0, imgWeather.length);
                 ivWeather.setImageBitmap(bitmapWeather);
@@ -214,9 +218,10 @@ public class MainActivity extends AppCompatActivity {
                 currentCity = new Gson().fromJson(jsonMyObject, City.class);
                 Weather weather = currentCity.getWeather();
                 tvCity.setText(currentCity.getName());
-                tvTemperature.setText(getResources().getString(R.string.temperature) + "" + String.valueOf(weather.getTemperature()) + "°");
-                tvHumidity.setText(getResources().getString(R.string.humidity) + "" + String.valueOf(weather.getHumidity()));
+                tvTemperature.setText(getResources().getString(R.string.temperature) + "" + String.valueOf(weather.getTemperature()) + "°C");
+                tvHumidity.setText(getResources().getString(R.string.humidity) + "" + String.valueOf(weather.getHumidity())+"%");
                 tvDescription.setText(getResources().getString(R.string.description) + "" + weather.getDescription());
+                ultimaAct.setText(String.valueOf(weather.getId()));
                 byte[] imgWeather = weather.getImageWeather();
                 Bitmap bitmapWeather = BitmapFactory.decodeByteArray(imgWeather, 0, imgWeather.length);
                 ivWeather.setImageBitmap(bitmapWeather);
@@ -231,5 +236,6 @@ public class MainActivity extends AppCompatActivity {
         tvHumidity.setText("");
         tvDescription.setText("");
         ivWeather.setImageBitmap(null);
+        ultimaAct.setText("");
     }
 }
