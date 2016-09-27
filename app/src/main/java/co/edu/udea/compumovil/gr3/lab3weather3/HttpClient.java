@@ -1,5 +1,7 @@
 package co.edu.udea.compumovil.gr3.lab3weather3;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -9,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -62,7 +65,7 @@ public class HttpClient {
 
     /*Obtener la URL para la decarga de la imagen*/
     private String getImageURL(String iconCode){
-        return URL_BASE + REQUESTS[1]+iconCode;
+        return URL_BASE + REQUESTS[1]+iconCode+".png";
     }
 
 
@@ -112,11 +115,12 @@ public class HttpClient {
 
             // Let's read the response
             is = con.getInputStream();
+            //is = con.getOutputStream();
+            //con.str
             byte[] buffer = new byte[1024];
+            Bitmap b = BitmapFactory.decodeStream(is);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            while (is.read(buffer) != -1){
-                baos.write(buffer);
-            }
+            b.compress(Bitmap.CompressFormat.PNG, 100, baos);
             return baos.toByteArray();
         }
         catch(Throwable t) {

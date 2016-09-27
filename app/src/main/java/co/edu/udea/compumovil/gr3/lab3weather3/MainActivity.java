@@ -21,7 +21,9 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -142,6 +144,8 @@ public class MainActivity extends AppCompatActivity {
 
                 //Descargar la imagen
                 byte[] b = client.downloadImage(currentWeather.getIconCode());
+                Log.d("tag", currentWeather.getIconCode());
+
                 currentWeather.setImageWeather(b);
                 City city = new City();
                 city.setName(cityName);
@@ -168,8 +172,19 @@ public class MainActivity extends AppCompatActivity {
                 tvTemperature.setText(getResources().getString(R.string.temperature)+""+String.valueOf(weather.getTemperature())+"°");
                 tvHumidity.setText(getResources().getString(R.string.humidity)+""+String.valueOf(weather.getHumidity()+"%"));
                 tvDescription.setText(getResources().getString(R.string.description)+""+weather.getDescription());
-                ultimaAct.setText(String.valueOf(weather.getId()));
+
+
+                java.text.DateFormat f = java.text.DateFormat.getDateInstance();
+
+                String fecha = f.format(new Date((long) weather.getId()*1000));
+
+                ultimaAct.setText(String.valueOf(fecha));
+
+
                 byte[] imgWeather = weather.getImageWeather();
+                if (imgWeather == null){
+                    Log.d("null", "null");
+                }
                 Bitmap bitmapWeather = BitmapFactory.decodeByteArray(imgWeather, 0, imgWeather.length);
                 ivWeather.setImageBitmap(bitmapWeather);
                 cityAvailable=true;
