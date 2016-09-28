@@ -1,12 +1,14 @@
 package co.edu.udea.compumovil.gr3.lab3weather3;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.text.DateFormat;
 import java.util.Arrays;
@@ -29,7 +30,20 @@ import java.util.StringTokenizer;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static String TAG_Ciudad = "Ciudad";
+    public static String TAG_CityFormat = "CiudadFormat";
+    public static String TAG_Temperatura = "Temperatura";
+    public static String TAG_Descripcion = "Descripcion";
+    public static String TAG_Humedad = "Humedad";
+    public static String TAG_UltimaVez = "UltimaVez";
+    public static String TAG_Imagen = "Imagen";
+    public static String TAG_Mensaje = "Mensaje";
+    public static String TAG_Action = "co.edu.udea.compumovil.gr3.lab3weather3.ACTION";
+
+
     private String message;
+    private IntentFilter filter;
+    MyBroadcastReceiver myBroadcast;
     private City currentCity;
     private AutoCompleteTextView tvSearch;
     private TextView tvCity, tvTemperature, tvHumidity, tvDescription,ultimaAct;
@@ -39,9 +53,26 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        myBroadcast = new MyBroadcastReceiver();
+        registerReceiver(myBroadcast, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(myBroadcast);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        filter = new IntentFilter();
+        filter.addAction(TAG_Action);
+
 
         //Obtener el estado de la variable guardada
         if(savedInstanceState!=null){
@@ -76,7 +107,10 @@ public class MainActivity extends AppCompatActivity {
             //Formatear el string de la ciudad en caso de que tenga espacios
             String cityFormated = formatCity(city);
             if (checkConnection()) {
-                new HttpGetTask().execute(city, cityFormated);
+                Intent i = new Intent(this, ServiceLab3.class);
+                i.putExtra(TAG_Ciudad, city);
+                i.putExtra(TAG_CityFormat, cityFormated);
+                startService(i);
             } else {
                 Toast.makeText(this, "Verifique su conexión a internet", Toast.LENGTH_LONG).show();
             }
@@ -98,105 +132,6 @@ public class MainActivity extends AppCompatActivity {
         return responseCity;
     }
 
-    private class HttpGetTask extends AsyncTask<String, Void, City> {
-
-        private static final String TAG = "HttpGetTask";
-        private ProgressDialog Dialog = new ProgressDialog(MainActivity.this);
-        private String data;
-
-        @Override
-        protected void onPreExecute() {
-            //Start Progress Dialog (Message)
-            Dialog.setMessage("Cargando información del clima");
-            Dialog.show();
-        }
-
-        @Override
-        protected City doInBackground(String... params) {
-            HttpClient client = new HttpClient();
-
-            //Obtener los parametros
-            String cityName=params[0];
-            String cityURL = params[1];
-
-            //Obtener el lenguaje para la consulta
-            String language = getResources().getString(R.string.idioma);
-
-            //Traer los datos del clima
-            data = client.getJSONData(cityURL,language);
-
-            //Convertir JSON a modelo de objetos Java
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(Weather.class,new WeatherDeserializer());
-            Gson gson = gsonBuilder.create();
-            Weather currentWeather=null;
-            try {
-                currentWeather = gson.fromJson(data, Weather.class);
-            }catch(com.google.gson.JsonSyntaxException ex){
-                message = "Verifique su conexión a Internet";
-            }
-            if(currentWeather==null){
-                message = "Ciudad invalida";
-                return null;
-
-            }else {
-                publishProgress();
-
-                //Descargar la imagen
-                byte[] b = client.downloadImage(currentWeather.getIconCode());
-                Log.d("tag", currentWeather.getIconCode());
-
-                currentWeather.setImageWeather(b);
-                City city = new City();
-                city.setName(cityName);
-                city.setWeather(currentWeather);
-                return city;
-            }
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            Dialog.setMessage("Descargando Imagen");
-        }
-
-        @Override
-        protected void onPostExecute(City city) {
-
-            // Close progress dialog
-            Dialog.dismiss();
-            //Búsqueda exitosa: mostrar en pantalla el resultado
-            if(city!=null) {
-                currentCity = city;
-                Weather weather = city.getWeather();
-                tvCity.setText(city.getName());
-                tvTemperature.setText(getResources().getString(R.string.temperature)+""+String.valueOf(weather.getTemperature())+"°");
-                tvHumidity.setText(getResources().getString(R.string.humidity)+""+String.valueOf(weather.getHumidity()+"%"));
-                tvDescription.setText(getResources().getString(R.string.description)+""+weather.getDescription());
-
-
-                java.text.DateFormat f = java.text.DateFormat.getDateInstance();
-
-                String fecha = f.format(new Date((long) weather.getId()*1000));
-
-                ultimaAct.setText(String.valueOf(fecha));
-
-
-                byte[] imgWeather = weather.getImageWeather();
-                if (imgWeather == null){
-                    Log.d("null", "null");
-                }
-                Bitmap bitmapWeather = BitmapFactory.decodeByteArray(imgWeather, 0, imgWeather.length);
-                ivWeather.setImageBitmap(bitmapWeather);
-                cityAvailable=true;
-            }else{
-                //Busqueda no exitosa: Mostrar una notificacion toast con el mensaje respectivo
-                Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
-                cityAvailable = false;
-                clearScreen();
-            }
-
-        }
-    }
 
     /*Chequear la conexión a Internet*/
     private boolean checkConnection() {
@@ -252,5 +187,40 @@ public class MainActivity extends AppCompatActivity {
         tvDescription.setText("");
         ivWeather.setImageBitmap(null);
         ultimaAct.setText("");
+    }
+
+    public class MyBroadcastReceiver extends BroadcastReceiver {
+        public MyBroadcastReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if(intent != null) {
+
+                tvCity.setText(intent.getStringExtra(TAG_Ciudad));
+                tvTemperature.setText(intent.getStringExtra(TAG_Temperatura));
+
+                tvHumidity.setText(intent.getStringExtra(TAG_Humedad));
+
+                tvDescription.setText(intent.getStringExtra(TAG_Descripcion));
+
+                ultimaAct.setText(intent.getStringExtra(TAG_UltimaVez));
+
+                Bitmap bitmapWeather = BitmapFactory.decodeByteArray(intent.getByteArrayExtra(TAG_Imagen), 0, intent.getByteArrayExtra(TAG_Imagen).length);
+                ivWeather.setImageBitmap(bitmapWeather);
+
+
+                cityAvailable=true;
+            }else{
+                //Busqueda no exitosa: Mostrar una notificacion toast con el mensaje respectivo
+                Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
+                cityAvailable = false;
+                clearScreen();
+            }
+            Log.d("estado","actualizando");
+
+
+        }
     }
 }
