@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(this, ServiceLab3.class);
                 i.putExtra(TAG_Ciudad, city);
                 i.putExtra(TAG_CityFormat, cityFormated);
+                stopService(i);
                 startService(i);
             } else {
                 Toast.makeText(this, "Verifique su conexión a internet", Toast.LENGTH_LONG).show();
@@ -171,7 +172,9 @@ public class MainActivity extends AppCompatActivity {
                 tvTemperature.setText(getResources().getString(R.string.temperature) + "" + String.valueOf(weather.getTemperature()) + "°C");
                 tvHumidity.setText(getResources().getString(R.string.humidity) + "" + String.valueOf(weather.getHumidity())+"%");
                 tvDescription.setText(getResources().getString(R.string.description) + "" + weather.getDescription());
-                ultimaAct.setText(String.valueOf(weather.getId()));
+
+
+                ultimaAct.setText(String.valueOf(weather.getId()*1000));
                 byte[] imgWeather = weather.getImageWeather();
                 Bitmap bitmapWeather = BitmapFactory.decodeByteArray(imgWeather, 0, imgWeather.length);
                 ivWeather.setImageBitmap(bitmapWeather);

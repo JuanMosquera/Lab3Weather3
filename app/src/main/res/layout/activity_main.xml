@@ -41,7 +41,7 @@
            android:inputType="textAutoComplete"
            android:layout_centerHorizontal="true"
            android:imeOptions="actionDone"
-           android:hint="Ciudad capital"
+           android:hint="Ciudad a Buscar"
            android:maxLines="1"
            android:gravity="center"
            android:background="@color/colorLetra"

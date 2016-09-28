@@ -33,9 +33,9 @@ public class HttpGetTask extends AsyncTask<String, Void, City> {
     @Override
     protected void onPreExecute() {
         //Start Progress Dialog (Message)
-        Dialog = new ProgressDialog(context);
-        Dialog.setMessage("Cargando información del clima");
-        Dialog.show();
+        //Dialog = new ProgressDialog(context);
+        //Dialog.setMessage("Cargando información del clima");
+        //Dialog.show();
     }
 
     @Override
@@ -83,14 +83,14 @@ public class HttpGetTask extends AsyncTask<String, Void, City> {
 
     @Override
     protected void onProgressUpdate(Void... values) {
-        Dialog.setMessage("Descargando Imagen");
+        //Dialog.setMessage("Descargando Imagen");
     }
 
     @Override
     protected void onPostExecute(City city) {
 
         // Close progress dialog
-        Dialog.dismiss();
+        //Dialog.dismiss();
         Weather weather = city.getWeather();
         Intent i = new Intent();
         i.setAction(MainActivity.TAG_Action);
